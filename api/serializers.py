@@ -7,8 +7,10 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = 'id', 'name'
 
 class GameSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False)
     category = CategorySerializer()
     name = serializers.CharField()
     description = serializers.CharField()
     image = serializers.CharField()
     requirements = serializers.CharField()
+    
