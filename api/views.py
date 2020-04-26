@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from api.models import Category, Game
-from api.serializers import CategorySerializer, GameSerializer
+from api.models import Category, Game, Comment
+from api.serializers import CategorySerializer, GameSerializer, CommentSerializer
 from rest_framework.decorators import api_view, permission_classes
 from django.http.response import JsonResponse
 from rest_framework.views import APIView
@@ -55,7 +55,7 @@ def game_list(request):
             return JsonResponse({"status":"505"}, safe=False)
     if request.method == 'POST':
         try:
-            category = Category.objects.get(id=request.data['cat_id'])
+            category = Category.objects.get(name=request.data['category'])
         except:
             return JsonResponse({"status":"505"}, safe=False)
         Game.objects.create(
@@ -93,3 +93,25 @@ class GameView(APIView):
         game = self.get_game(id)
         game.delete()
         return JsonResponse({"status": "200"}, safe=False) 
+
+
+class CommentView(APIView):
+    def post(self, request):
+        try:
+            game = Game.objects.get(name=request.data.get('game'))
+        except:
+            return JsonResponse({"error": "cant get game(((("}, safe=False)
+        Comment.objects.create(
+            username = request.data.get('username'),
+            text = request.data.get('text'),
+            game = game
+        )
+        return JsonResponse({"status": "200"}, safe=False)
+
+    def get(self, request):
+        try:
+            comments = Comment.objects.all()
+            serializer = CommentSerializer(comments, many=True)
+            return JsonResponse(serializer.data, safe=False)
+        except:
+            return JsonResponse({"status":"505"}, safe=False)
